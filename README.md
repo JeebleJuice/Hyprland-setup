@@ -34,6 +34,7 @@ Put preview images in `screenshots/` if you want to document the theme visually.
 ## Main shortcuts
 
 - `SUPER + W` cycles wallpaper and regenerates colors.
+- `SUPER + Q` Close focused tile.
 - `SUPER + L` locks the screen.
 - `SUPER + Shift + C` opens the color picker.
 - `SUPER + Shift + B` restarts Waybar.
