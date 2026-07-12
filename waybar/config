@@ -1,0 +1,109 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 53,
+    "spacing": 5,
+    "margin-bottom": -11,
+    "modules-left": [
+        "hyprland/workspaces"
+    ],
+    "modules-center": [],
+    "modules-right": [
+        "custom/power",
+        "custom/keyboard",
+        "network",
+        "pulseaudio",
+        "backlight",
+        "bluetooth",
+        "battery",
+        "custom/weather",
+        "custom/resources",
+        "clock"
+    ],
+    "hyprland/workspaces": {
+        "format": "{icon}",
+        "format-active": " {icon} ",
+        "on-click": "activate"
+    },
+    "clock": {
+        "timezone": "Europe/Copenhagen",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "interval": 60,
+        "format": "{:%I:%M}",
+        "max-length": 25,
+        "on-click": "gnome-calendar"
+    },
+    "custom/weather": {
+        "exec": "~/.config/waybar/scripts/weather.sh",
+        "return-type": "json",
+        "interval": 900,
+        "tooltip": true,
+        "on-click": "~/.config/waybar/scripts/weather_menu.sh"
+    },
+    "custom/resources": {
+        "format": "",
+        "tooltip": "System Monitor",
+        "on-click": "gnome-system-monitor"
+    },
+    "battery": {
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{capacity}% {icon}",
+        "format-charging": "{capacity}% {icon}",
+        "format-plugged": "{capacity}% {icon}",
+        "tooltip-format": "{timeTo}",
+        "format-icons": ["", "", "", "", ""],
+        "on-click": "~/.config/waybar/scripts/power_menu.sh"
+    },
+    "custom/power": {
+        "format": "⏻",
+        "tooltip": "Power options",
+        "on-click": "wlogout"
+    },
+    "custom/keyboard": {
+        "exec": "~/.config/waybar/scripts/keyboard_layout.sh",
+        "interval": 1,
+        "tooltip": "Keyboard layout",
+        "on-click": "~/.config/waybar/scripts/keyboard_layout.sh toggle"
+    },
+    "backlight": {
+        "device": "intel_backlight",
+        "format": "{icon}   {percent}%",
+        "format-icons": ["󰃞", "󰃟", "󰃠"],
+        "tooltip-format": "Screen brightness: {percent}%",
+        "on-click": "~/.config/waybar/scripts/brightness_menu.sh",
+        "on-scroll-up": "brightnessctl -d intel_backlight set +5%",
+        "on-scroll-down": "brightnessctl -d intel_backlight set 5%-"
+    },
+    "network": {
+        "format-wifi": "    {essid}",
+        "format-ethernet": " {ifname}",
+        "format-linked": "{ifname} (No IP) ",
+        "format-disconnected": "⚠ Disconnected",
+        "tooltip-format": "{essid} ({signalStrength}%)",
+        "format-icons": ["", "", "", ""],
+        "on-click": "nm-connection-editor"
+    },
+    "bluetooth": {
+        "format": "   {status}",
+        "format-connected": "   {device_alias}",
+        "tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
+        "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+        "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_address}\t{device_battery_percentage}%",
+        "on-click": "~/.config/waybar/scripts/bluetooth_menu.sh"
+    },
+    "pulseaudio": {
+        "scroll-step": 5,
+        "format": "{icon}     {volume}%",
+        "format-bluetooth": "{icon}     {volume}%",
+        "format-bluetooth-muted": " {icon}",
+        "format-muted": "     Muted",
+        "format-icons": {
+            "default": ["", "", ""]
+        },
+        "on-click": "pavucontrol"
+    }
+}

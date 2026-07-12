@@ -1,0 +1,12 @@
+[pyprland]
+plugins = ["scratchpads"]
+
+[pyprland.variables]
+term_classed = "kitty --class"
+
+[scratchpads.term]
+animation = "fromTop"
+command = "[term_classed] glass-dropterm"
+class = "glass-dropterm"
+size = "75% 60%"
+max_size = "1920px 100%"

@@ -1,0 +1,17 @@
+*.bak
+*.orig
+*.save
+*.swp
+*~
+*.log
+
+# Local cache and generated clutter
+.cache/
+.local/
+tmp/
+temp/
+
+# Backups and editor metadata
+.obsidian/
+.vscode/
+

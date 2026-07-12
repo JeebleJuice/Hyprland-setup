@@ -1,0 +1,259 @@
+@import "colors.css";
+@import "contrast.css";
+
+* {
+    font-family: Cantarell, Inter, 'SF Pro Display';
+    border: none;
+    box-shadow: none; /* Глобально отключаем любые тени */
+    min-height: 0;
+    color: @foreground;
+}
+
+window#waybar {
+    background-color: transparent;
+    border-bottom: none;
+    box-shadow: none;
+}
+
+#clock,
+#battery,
+#backlight,
+#custom-weather,
+#custom-resources,
+#custom-power,
+#custom-keyboard,
+#network,
+#pulseaudio,
+#bluetooth {
+    font-weight: bold; /* Твой bold сохранен */
+    padding: 4px 14px;
+    border-radius: 15px;
+    background-color: alpha(@module_fg, 0.08);
+    color: @module_fg;
+    border: 1px solid @module_border;
+    margin: 10px 10px 10px 0;
+    font-size: 15px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+#workspaces {
+    background-color: transparent;
+    margin: 10px 10px 10px 25px;
+}
+
+#workspaces button {
+    background-color: alpha(@module_fg, 0.08);
+    border-radius: 15px;
+    margin-right: 10px;
+    padding: 4px 14px;
+    font-weight: bold; /* Твой bold сохранен */
+    font-size: 15px;
+    color: @module_fg;
+    border: 1px solid @module_border;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+#workspaces button:hover {
+    background-color: alpha(@module_fg, 0.18);
+}
+
+#workspaces button.active {
+    padding: 4px 14px;
+    background: linear-gradient(45deg, @color1, @color2, @color5);
+    background-size: 300% 300%;
+    color: @module_fg;
+    border: 1px solid @module_border;
+    border-radius: 15px;
+    animation: gradient 6s ease infinite;
+}
+
+#workspaces button label {
+    color: @module_fg;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+#workspaces button.active label {
+    color: @module_fg;
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes blink {
+    to {
+        background-color: @color3;
+        color: #FFFFFF;
+    }
+}
+
+/* Анимация пульсации без теней */
+@keyframes warning-pulse {
+    0% { background-color: rgba(239, 83, 80, 0.4); }
+    50% { background-color: rgba(211, 47, 47, 0.7); }
+    100% { background-color: rgba(239, 83, 80, 0.4); }
+}
+
+#bluetooth {
+    font-weight: bold;
+    font-size: 18px;
+    transition: all 0.5s ease;
+}
+
+#bluetooth:hover {
+    background-color: alpha(@module_fg, 0.18);
+}
+
+#bluetooth.connected {
+    background-color: alpha(@module_fg, 0.08);
+}
+
+#bluetooth.off {
+    background-color: transparent;
+    border: none;
+}
+
+#clock {
+    background-color: alpha(@module_fg, 0.08);
+    margin-right: 25px;
+    transition: all 0.3s ease;
+}
+
+#clock:hover {
+    background-color: alpha(@module_fg, 0.18);
+}
+
+#clock label {
+    color: @module_fg;
+}
+
+#battery {
+    background-color: alpha(@module_fg, 0.08);
+    transition: all 0.3s ease;
+}
+
+#battery:hover {
+    background-color: alpha(@module_fg, 0.18);
+}
+
+#backlight {
+    background-color: alpha(@module_fg, 0.08);
+    transition: all 0.3s ease;
+}
+
+#backlight:hover {
+    background-color: alpha(@module_fg, 0.18);
+}
+
+#battery.charging,
+#battery.plugged {
+    background-color: alpha(@module_fg, 0.08);
+}
+
+#battery.critical:not(.charging) {
+    background-color: alpha(@color1, 0.6);
+    animation: blink 0.5s infinite;
+}
+
+#network {
+    transition: all 0.3s ease;
+}
+
+#network:hover {
+    background-color: alpha(@module_fg, 0.18);
+}
+
+#network.disabled {
+    background-color: alpha(@module_fg, 0.08);
+}
+
+#network.disconnected {
+    background-color: alpha(@module_fg, 0.08);
+}
+
+#network.linked,
+#network.wifi {
+    background-color: alpha(@module_fg, 0.08);
+}
+
+#network.ethernet {
+    background-color: alpha(@module_fg, 0.08);
+}
+
+#network.wifi:hover,
+#network.linked:hover,
+#network.ethernet:hover,
+#network.disconnected:hover,
+#network.disabled:hover {
+    background-color: alpha(@module_fg, 0.18);
+}
+
+#pulseaudio {
+    background-color: alpha(@module_fg, 0.08);
+    transition: all 0.3s ease;
+}
+
+#pulseaudio:hover {
+    background-color: alpha(@module_fg, 0.18);
+}
+
+#pulseaudio.muted {
+    background-color: alpha(@color1, 0.6);
+    animation: none;
+}
+
+#custom-weather {
+    background-color: alpha(@module_fg, 0.08);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+#custom-weather:hover {
+    background-color: alpha(@module_fg, 0.18);
+}
+
+#custom-resources {
+    background-color: alpha(@module_fg, 0.08);
+    transition: all 0.3s ease;
+}
+
+#custom-resources:hover {
+    background-color: alpha(@module_fg, 0.18);
+}
+
+#custom-power {
+    background-color: alpha(@module_fg, 0.08);
+    transition: all 0.3s ease;
+}
+
+#custom-power:hover {
+    background-color: alpha(@module_fg, 0.18);
+}
+
+#custom-keyboard {
+    background-color: alpha(@module_fg, 0.08);
+    transition: all 0.3s ease;
+    min-width: 44px;
+    padding: 4px 12px;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+}
+
+#custom-keyboard:hover {
+    background-color: alpha(@module_fg, 0.18);
+}
+
+#custom-power,
+#custom-resources {
+    min-width: 28px;
+    padding: 0 12px 4px;
+    font-size: 28px;
+}
+
+#custom-resources {
+    min-width: 26px;
+    padding: 2px 12px 3px;
+    font-size: 21px;
+}
