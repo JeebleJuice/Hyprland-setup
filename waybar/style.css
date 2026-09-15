@@ -22,6 +22,7 @@ window#waybar {
 #custom-resources,
 #custom-power,
 #custom-keyboard,
+#custom-vpn,
 #network,
 #pulseaudio,
 #bluetooth {
@@ -134,6 +135,7 @@ window#waybar {
 }
 
 #battery {
+    font-family: Cantarell, Inter, 'SF Pro Display', 'JetBrainsMono Nerd Font';
     background-color: alpha(@module_fg, 0.08);
     transition: all 0.3s ease;
 }
@@ -194,6 +196,35 @@ window#waybar {
     background-color: alpha(@module_fg, 0.18);
 }
 
+#custom-vpn {
+    min-width: 28px;
+    padding: 4px 9px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+#custom-vpn:hover {
+    background-color: alpha(@module_fg, 0.18);
+}
+
+#custom-vpn.connected {
+    background: linear-gradient(45deg,
+        shade(@wallpaper_dominant, 0.55),
+        @wallpaper_dominant,
+        shade(@wallpaper_dominant, 1.45));
+    background-size: 300% 300%;
+    animation: gradient 6s ease infinite;
+}
+
+#custom-vpn.disconnected,
+#custom-vpn.unavailable {
+    background-color: alpha(@module_fg, 0.08);
+}
+
+#custom-vpn.unavailable {
+    opacity: 0.65;
+}
+
 #pulseaudio {
     background-color: alpha(@module_fg, 0.08);
     transition: all 0.3s ease;
@@ -204,9 +235,13 @@ window#waybar {
 }
 
 #pulseaudio.muted {
-    background-color: alpha(@wallpaper_dominant, 0.82);
-    border-color: @wallpaper_dominant;
-    animation: none;
+    background: linear-gradient(45deg,
+        shade(@wallpaper_dominant, 0.55),
+        @wallpaper_dominant,
+        shade(@wallpaper_dominant, 1.45));
+    background-size: 300% 300%;
+    border-color: @module_border;
+    animation: gradient 6s ease infinite;
 }
 
 #custom-weather {

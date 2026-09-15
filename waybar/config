@@ -12,6 +12,7 @@
         "custom/power",
         "custom/keyboard",
         "network",
+        "custom/vpn",
         "pulseaudio",
         "backlight",
         "bluetooth",
@@ -88,6 +89,15 @@
         "format-icons": ["", "", "", ""],
         "on-click": "~/.config/waybar/scripts/wifi_menu.sh",
         "on-click-right": "nm-connection-editor"
+    },
+    "custom/vpn": {
+        "exec": "~/.config/waybar/scripts/vpn.sh status",
+        "return-type": "json",
+        "interval": 10,
+        "signal": 8,
+        "tooltip": true,
+        "on-click": "~/.config/waybar/scripts/vpn.sh menu",
+        "on-click-right": "~/.config/waybar/scripts/vpn.sh toggle"
     },
     "bluetooth": {
         "format": "   {status}",

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Cycle Wallpaper
+Comment=Cycle static and animated wallpapers
+Icon=preferences-desktop-wallpaper
+Exec=sh -lc "\\$HOME/.config/hypr/scripts/cycle_wall.sh"
+Terminal=false
+NoDisplay=true
+X-KDE-Shortcuts=Meta+W

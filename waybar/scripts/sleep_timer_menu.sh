@@ -41,14 +41,14 @@ printf "%s\n" "$timeout" > "$STATE"
 
 cat > "$CONFIG" <<EOF
 general {
-    lock_cmd = pidof hyprlock || hyprlock
-    before_sleep_cmd = loginctl lock-session
+    lock_cmd = $HOME/.config/hypr/scripts/lock.sh
+    before_sleep_cmd = $HOME/.config/hypr/scripts/lock.sh
     after_sleep_cmd = hyprctl dispatch dpms on
 }
 
 listener {
     timeout = 300
-    on-timeout = loginctl lock-session
+    on-timeout = $HOME/.config/hypr/scripts/lock.sh
 }
 EOF
 

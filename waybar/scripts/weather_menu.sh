@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ROFI_THEME="$HOME/.config/rofi/glass-menu.rasi"
-LOCATION="${WEATHER_LOCATION:-Copenhagen}"
+LOCATION="${WEATHER_LOCATION:-Helsingør}"
 
 choice=$(printf "Current forecast\n3 day forecast\nOpen weather in terminal" | rofi -dmenu -theme "$ROFI_THEME" -p "Weather")
 

@@ -42,7 +42,13 @@ mkdir -p "$HOME/.cache/hyprlock"
 ln -sfn "$NEXT_WALL" "$HOME/.cache/hyprlock/current_wallpaper"
 
 killall -q waypaper mpvpaper swaybg 2>/dev/null || true
-swaync-client -rs
+# Plasma already owns the notification D-Bus interface. Calling swaync-client
+# there activates swaync.service, which immediately fails because it cannot take
+# that name from Plasma's notification service.
+if [[ "${XDG_CURRENT_DESKTOP:-}" != *KDE* ]] && [ -z "${KDE_FULL_SESSION:-}" ] \
+    && command -v swaync-client >/dev/null 2>&1; then
+    swaync-client -rs >/dev/null 2>&1 || true
+fi
 sleep 0.2
 
 EXT="${NEXT_WALL##*.}"

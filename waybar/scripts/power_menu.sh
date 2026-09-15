@@ -4,7 +4,7 @@ active=$(tuned-adm active 2>/dev/null | sed -n 's/^Current active profile: //p')
 [ -z "$active" ] && active="none"
 ROFI_THEME="$HOME/.config/rofi/glass-menu.rasi"
 
-choice=$(printf "Lock\nBalanced\nPower saver\nPerformance\nSleep timer\nSuspend now\nHibernate now\nLogout" | rofi -dmenu -theme "$ROFI_THEME" -p "Power: $active")
+choice=$(printf "Balanced\nPerformance\nPower saver\nSleep timer" | rofi -dmenu -theme "$ROFI_THEME" -p "Power: $active")
 
 set_profile() {
     profile="$1"
@@ -20,33 +20,17 @@ set_profile() {
     fi
 }
 
-hibernate_now() {
-    ~/.config/hypr/scripts/hibernate.sh
-}
-
 case "$choice" in
-    "Lock")
-        ~/.config/hypr/scripts/lock.sh
-        ;;
     "Balanced")
         set_profile balanced "Balanced"
-        ;;
-    "Power saver")
-        set_profile powersave "Power saver"
         ;;
     "Performance")
         set_profile throughput-performance "Performance"
         ;;
+    "Power saver")
+        set_profile powersave "Power saver"
+        ;;
     "Sleep timer")
         ~/.config/waybar/scripts/sleep_timer_menu.sh
-        ;;
-    "Suspend now")
-        systemctl suspend
-        ;;
-    "Hibernate now")
-        hibernate_now
-        ;;
-    "Logout")
-        hyprctl dispatch exit
         ;;
 esac

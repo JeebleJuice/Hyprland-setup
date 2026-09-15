@@ -1,8 +1,8 @@
 #!/bin/bash
 
-LOCATION="${WEATHER_LOCATION:-Copenhagen}"
-LAT="${WEATHER_LAT:-55.6761}"
-LON="${WEATHER_LON:-12.5683}"
+LOCATION="${WEATHER_LOCATION:-Helsingør}"
+LAT="${WEATHER_LAT:-56.0361}"
+LON="${WEATHER_LON:-12.6136}"
 CACHE="$HOME/.cache/waybar-weather.json"
 URL="https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=auto"
 

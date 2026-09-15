@@ -4,14 +4,14 @@ DEVICE="intel_backlight"
 current=$(brightnessctl -d "$DEVICE" info | awk -F'[()]' '/Current brightness/ {print $2}')
 ROFI_THEME="$HOME/.config/rofi/glass-menu.rasi"
 
-choice=$(printf "Increase +10%%\nDecrease -10%%\n10%%\n25%%\n50%%\n75%%\n100%%\nCustom..." | rofi -dmenu -theme "$ROFI_THEME" -p "Brightness $current")
+choice=$(printf "Increase +5%%\nDecrease -5%%\n10%%\n25%%\n50%%\n75%%\n100%%\nCustom..." | rofi -dmenu -theme "$ROFI_THEME" -p "Brightness $current")
 
 case "$choice" in
-    "Increase +10%")
-        brightnessctl -d "$DEVICE" set +10%
+    "Increase +5%")
+        brightnessctl -d "$DEVICE" set +5%
         ;;
-    "Decrease -10%")
-        brightnessctl -d "$DEVICE" set 10%-
+    "Decrease -5%")
+        brightnessctl -d "$DEVICE" set 5%-
         ;;
     10%|25%|50%|75%|100%)
         brightnessctl -d "$DEVICE" set "$choice"
