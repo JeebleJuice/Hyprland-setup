@@ -1,0 +1,9 @@
+:root {
+    --glass-accent: #D4F675;
+    --glass-accent-readable: #D4F675;
+    --glass-accent-soft: #D4F67538;
+    --glass-accent-faint: #D4F6751F;
+    --glass-foreground: #F8FAFC;
+    --glass-selection-foreground: #111111;
+    --glass-scrollbar: #F8FAFCB0;
+}

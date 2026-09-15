@@ -2,7 +2,9 @@
     bg-col: {{background}}E6;
     fg-col: {{foreground}};
     border-col: {{foreground}}1A;
-    sel-bg: {{color4}}80;
+    accent-col: {{color1}};
+    accent-soft: {{color1}}66;
+    sel-bg: {{color1}}D1;
     col0: {{color0}};
     col1: {{color1}};
     col2: {{color2}};

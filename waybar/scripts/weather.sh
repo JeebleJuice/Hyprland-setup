@@ -47,7 +47,7 @@ if [ -n "$data" ]; then
     tooltip=$(printf "%s\n%s\nFeels like: %s°C\nHumidity: %s%%\nWind: %s km/h" "$LOCATION" "$condition" "$feels" "$humidity" "$wind")
 
     jq -nc \
-        --arg text "$icon ${temp}°C" \
+        --arg text "$icon ${temp}°C" \
         --arg tooltip "$tooltip" \
         '{text: $text, tooltip: $tooltip, class: "weather"}' | tee "$CACHE"
     exit 0
@@ -56,5 +56,5 @@ fi
 if [ -f "$CACHE" ]; then
     cat "$CACHE"
 else
-    jq -nc '{text: "☁ --°", tooltip: "Weather unavailable", class: "weather-error"}'
+    jq -nc '{text: "☁ --°", tooltip: "Weather unavailable", class: "weather-error"}'
 fi

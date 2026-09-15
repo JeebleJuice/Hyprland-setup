@@ -1,0 +1,238 @@
+@import url("wallpaper.css");
+
+:root {
+    color-scheme: dark;
+    accent-color: var(--glass-accent);
+    --glass-muted: #D2D7DC;
+    --glass-surface: rgba(10, 12, 16, 0.68);
+    --glass-surface-strong: rgba(10, 12, 16, 0.82);
+    --glass-line: rgba(255, 255, 255, 0.22);
+}
+
+html,
+body,
+#kmailPage {
+    min-height: 100%;
+    background: transparent !important;
+    color: var(--glass-foreground);
+}
+
+body {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 8px;
+    font-family: system-ui, sans-serif;
+}
+
+::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+    background: transparent;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.10);
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    min-height: 36px;
+    background: var(--glass-scrollbar);
+    background-clip: padding-box;
+    border: 3px solid transparent;
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+    background: var(--glass-accent);
+    background-clip: padding-box;
+    border: 3px solid transparent;
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+#headerbox {
+    box-sizing: border-box;
+    margin: 0 0 8px;
+    padding: 12px 14px;
+    overflow: auto;
+    color: var(--glass-foreground) !important;
+    background:
+        linear-gradient(135deg, var(--glass-accent-faint), transparent 55%),
+        var(--glass-surface-strong);
+    border: 1px solid var(--glass-line);
+    border-left: 3px solid var(--glass-accent);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+#headerbox #subject {
+    padding: 0 0 8px;
+    color: var(--glass-foreground) !important;
+    font-size: 1.35rem;
+    font-weight: 650;
+    line-height: 1.25;
+}
+
+#headerbox #photo {
+    float: left;
+    margin: 2px 12px 4px 0;
+}
+
+#headerbox #photo img {
+    border: 1px solid var(--glass-line);
+    border-radius: 50%;
+    background: var(--glass-surface);
+}
+
+#headerbox .table {
+    display: table;
+    padding-right: 12px;
+}
+
+#headerbox .row {
+    display: table-row;
+}
+
+#headerbox .headerleft,
+#headerbox .headerright {
+    display: table-cell;
+    padding: 0.14em 0.7em 0.14em 0;
+    vertical-align: top;
+}
+
+#headerbox .headerleft,
+#headerbox .date {
+    color: var(--glass-muted) !important;
+}
+
+#headerbox .headerright {
+    font-weight: 600;
+}
+
+#headerbox .nowrap {
+    white-space: pre;
+}
+
+#headerbox .actiontable {
+    display: table;
+    width: 100%;
+}
+
+#headerbox .actionrowtable {
+    display: table-row;
+}
+
+#headerbox .theactioncell,
+#headerbox .theactionbigcell {
+    display: table-cell;
+    padding: 0 2px;
+    white-space: pre;
+}
+
+#headerbox .theactionbigcell {
+    width: 100%;
+}
+
+/* Header data can contain sender-provided address markup with inline colors. */
+#headerbox :where(span, font, strong, b, em) {
+    color: inherit !important;
+}
+
+#kmailContent {
+    box-sizing: border-box;
+    clear: both;
+    min-height: 12rem;
+    padding: 14px;
+    overflow-wrap: anywhere;
+    color: var(--glass-foreground) !important;
+    background: var(--glass-surface);
+    border: 1px solid var(--glass-line);
+    border-radius: 10px;
+}
+
+/*
+ * Keep the glass surface as the fallback for plain/unstyled content, but do
+ * not split an HTML sender's foreground/background pair. In particular,
+ * forcing light text while a white inline background survives makes the mail
+ * unreadable. Explicit message colors therefore remain paired as authored.
+ */
+
+#headerbox a,
+#headerbox a:link,
+#kmailContent a,
+#kmailContent a:link {
+    color: var(--glass-accent-readable) !important;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+}
+
+a:hover {
+    text-decoration-thickness: 2px;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--glass-accent);
+    outline-offset: 2px;
+}
+
+::selection {
+    color: var(--glass-selection-foreground);
+    background: var(--glass-accent);
+}
+
+blockquote {
+    margin-left: 0.35em;
+    padding-left: 0.9em;
+    border-left: 3px solid var(--glass-accent-soft);
+}
+
+pre,
+code {
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.20);
+}
+
+pre {
+    padding: 0.65em;
+    overflow-x: auto;
+    white-space: pre-wrap;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid var(--glass-line);
+}
+
+button,
+input,
+select,
+textarea {
+    color: var(--glass-foreground) !important;
+    background: var(--glass-surface-strong);
+    border: 1px solid var(--glass-line);
+    border-radius: 5px;
+}
+
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
+    border-color: var(--glass-accent);
+    background: var(--glass-accent-soft);
+}
+
+.htmlWarn {
+    margin: 6px 0 !important;
+    padding: 6px 8px;
+    color: var(--glass-foreground);
+    background: var(--glass-accent-faint);
+    border-left: 3px solid var(--glass-accent);
+    border-radius: 5px;
+}

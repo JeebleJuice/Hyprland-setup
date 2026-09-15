@@ -83,7 +83,7 @@ Fallback Encoding=ISO 8859-6
 [KTextEditor Renderer]
 Animate Bracket Matching=false
 Auto Color Theme Selection=false
-Color Theme=Breeze Dark
+Color Theme=Glass Dark
 Line Height Multiplier=1
 Show Indentation Lines=false
 Show Whole Bracket Expression=false

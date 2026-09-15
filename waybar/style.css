@@ -59,7 +59,10 @@ window#waybar {
 
 #workspaces button.active {
     padding: 4px 14px;
-    background: linear-gradient(45deg, @color1, @color2, @color5);
+    background: linear-gradient(45deg,
+        shade(@wallpaper_dominant, 0.55),
+        @wallpaper_dominant,
+        shade(@wallpaper_dominant, 1.45));
     background-size: 300% 300%;
     color: @module_fg;
     border: 1px solid @module_border;
@@ -201,7 +204,8 @@ window#waybar {
 }
 
 #pulseaudio.muted {
-    background-color: alpha(@color1, 0.6);
+    background-color: alpha(@wallpaper_dominant, 0.82);
+    border-color: @wallpaper_dominant;
     animation: none;
 }
 
@@ -235,8 +239,8 @@ window#waybar {
 #custom-keyboard {
     background-color: alpha(@module_fg, 0.08);
     transition: all 0.3s ease;
-    min-width: 44px;
-    padding: 4px 12px;
+    min-width: 36px;
+    padding: 4px 8px;
     font-size: 14px;
     letter-spacing: 0.05em;
 }
@@ -254,6 +258,6 @@ window#waybar {
 
 #custom-resources {
     min-width: 26px;
-    padding: 2px 12px 3px;
+    padding: 2px 13px 3px 11px;
     font-size: 21px;
 }

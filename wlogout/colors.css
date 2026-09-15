@@ -1,8 +1,10 @@
 @define-color background #08080D;
 @define-color foreground #EFFAFA;
+@define-color action_foreground #F4F6F8;
 @define-color color1 #9B4951;
 @define-color color2 #41629F;
 @define-color color3 #57705A;
 @define-color color4 #A09398;
 @define-color color5 #D4C270;
 @define-color color6 #D0F1F1;
+@define-color wallpaper_dominant #EB92E0;

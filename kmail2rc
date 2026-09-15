@@ -1,0 +1,44 @@
+# Portable KMail appearance and layout preferences only.
+# Accounts, identities, remote-content exceptions, folder IDs, and cached mail
+# are deliberately excluded from this public repository.
+
+[Behaviour]
+ActionEnterFolder=2
+
+[Geometry]
+FolderTreeHeight=811
+FolderViewWidth=221
+ReaderWindowHeight=918
+ReaderWindowWidth=1220
+SearchAndHeaderHeight=918
+SearchAndHeaderWidth=445
+readerWindowMode=right
+
+[MessageListView::Colors]
+UnreadMessageColor=212,246,117
+
+[MessageListView::StorageModelSortOrder]
+GlobalSortOrderGroupSortDirection=Descending
+GlobalSortOrderGroupSorting=SortGroupsByDateTime
+GlobalSortOrderMessageSortDirection=Descending
+GlobalSortOrderMessageSorting=SortMessagesByDateTime
+
+[Reader]
+ColorbarBackgroundHTML=0,0,0
+ColorbarBackgroundPlain=192,192,192
+ColorbarForegroundHTML=255,255,255
+ColorbarForegroundPlain=0,0,0
+LinkColor=212,246,117
+QuotedText1=150,255,194
+QuotedText2=98,255,164
+QuotedText3=55,244,134
+attachment-strategy=smart
+defaultColors=false
+htmlMail=true
+realHtmlMailColor=true
+
+[UiSettings]
+ColorScheme=
+
+[mail]
+themeName=glassy

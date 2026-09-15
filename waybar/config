@@ -29,7 +29,8 @@
         "timezone": "Europe/Copenhagen",
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
         "interval": 60,
-        "format": "{:%I:%M}",
+        "format": "{:%H:%M}",
+        "min-length": 5,
         "max-length": 25,
         "on-click": "gnome-calendar"
     },
@@ -51,7 +52,7 @@
             "critical": 15
         },
         "format": "{capacity}% {icon}",
-        "format-charging": "{capacity}% {icon}",
+        "format-charging": "{capacity}% 󰂄",
         "format-plugged": "{capacity}% {icon}",
         "tooltip-format": "{timeTo}",
         "format-icons": ["", "", "", "", ""],
@@ -74,8 +75,9 @@
         "format-icons": ["󰃞", "󰃟", "󰃠"],
         "tooltip-format": "Screen brightness: {percent}%",
         "on-click": "~/.config/waybar/scripts/brightness_menu.sh",
-        "on-scroll-up": "brightnessctl -d intel_backlight set +5%",
-        "on-scroll-down": "brightnessctl -d intel_backlight set 5%-"
+        "on-scroll-up": "brightnessctl -d intel_backlight set +1%",
+        "on-scroll-down": "brightnessctl -d intel_backlight set 1%-",
+        "reverse-scrolling": true
     },
     "network": {
         "format-wifi": "    {essid}",
@@ -84,7 +86,8 @@
         "format-disconnected": "⚠ Disconnected",
         "tooltip-format": "{essid} ({signalStrength}%)",
         "format-icons": ["", "", "", ""],
-        "on-click": "nm-connection-editor"
+        "on-click": "~/.config/waybar/scripts/wifi_menu.sh",
+        "on-click-right": "nm-connection-editor"
     },
     "bluetooth": {
         "format": "   {status}",
@@ -96,11 +99,13 @@
         "on-click": "~/.config/waybar/scripts/bluetooth_menu.sh"
     },
     "pulseaudio": {
-        "scroll-step": 5,
+        "scroll-step": 1,
+        "max-volume": 150,
+        "reverse-scrolling": true,
         "format": "{icon}     {volume}%",
         "format-bluetooth": "{icon}     {volume}%",
         "format-bluetooth-muted": " {icon}",
-        "format-muted": "     Muted",
+        "format-muted": "   Muted",
         "format-icons": {
             "default": ["", "", ""]
         },

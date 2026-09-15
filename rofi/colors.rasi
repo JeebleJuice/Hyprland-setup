@@ -2,7 +2,9 @@
     bg-col: #2B2B2CE6;
     fg-col: #EFFAFA;
     border-col: #EFFAFA1A;
-    sel-bg: #A0939880;
+    accent-col: #EB92E0;
+    accent-soft: #EB92E066;
+    sel-bg: #EB92E0D1;
     col0: #505051;
     col1: #9B4951;
     col2: #41629F;
