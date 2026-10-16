@@ -16,6 +16,7 @@ window#waybar {
 }
 
 #clock,
+#custom-clock,
 #battery,
 #backlight,
 #custom-weather,
@@ -25,7 +26,8 @@ window#waybar {
 #custom-vpn,
 #network,
 #pulseaudio,
-#bluetooth {
+#custom-microphone,
+#custom-bluetooth {
     font-weight: bold; /* Твой bold сохранен */
     padding: 4px 14px;
     border-radius: 15px;
@@ -101,37 +103,62 @@ window#waybar {
     100% { background-color: rgba(239, 83, 80, 0.4); }
 }
 
-#bluetooth {
+#custom-bluetooth {
     font-weight: bold;
     font-size: 18px;
     transition: all 0.5s ease;
 }
 
-#bluetooth:hover {
+#custom-bluetooth:hover {
     background-color: alpha(@module_fg, 0.18);
 }
 
-#bluetooth.connected {
-    background-color: alpha(@module_fg, 0.08);
+#custom-bluetooth.on,
+#custom-bluetooth.connected {
+    background: linear-gradient(45deg,
+        shade(@wallpaper_dominant, 0.55),
+        @wallpaper_dominant,
+        shade(@wallpaper_dominant, 1.45));
+    background-size: 300% 300%;
+    animation: gradient 6s ease infinite;
 }
 
-#bluetooth.off {
+#custom-bluetooth.off {
     background-color: transparent;
     border: none;
 }
 
-#clock {
+#clock,
+#custom-clock {
     background-color: alpha(@module_fg, 0.08);
     margin-right: 25px;
     transition: all 0.3s ease;
 }
 
-#clock:hover {
+#clock:hover,
+#custom-clock:hover {
     background-color: alpha(@module_fg, 0.18);
 }
 
-#clock label {
+#clock label,
+#custom-clock label {
     color: @module_fg;
+}
+
+tooltip,
+tooltip.background {
+    background-color: rgba(15, 17, 21, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
+}
+
+tooltip label,
+tooltip * {
+    color: #FFFFFF;
+}
+
+tooltip label {
+    padding: 10px 12px;
 }
 
 #battery {
@@ -164,6 +191,9 @@ window#waybar {
 }
 
 #network {
+    /* Shift the asymmetric Wi-Fi glyph optically without changing the total
+       horizontal padding occupied by the module. */
+    padding: 4px 18px 4px 10px;
     transition: all 0.3s ease;
 }
 
@@ -179,9 +209,17 @@ window#waybar {
     background-color: alpha(@module_fg, 0.08);
 }
 
-#network.linked,
-#network.wifi {
+#network.linked {
     background-color: alpha(@module_fg, 0.08);
+}
+
+#network.wifi {
+    background: linear-gradient(45deg,
+        shade(@wallpaper_dominant, 0.55),
+        @wallpaper_dominant,
+        shade(@wallpaper_dominant, 1.45));
+    background-size: 300% 300%;
+    animation: gradient 6s ease infinite;
 }
 
 #network.ethernet {
@@ -242,6 +280,43 @@ window#waybar {
     background-size: 300% 300%;
     border-color: @module_border;
     animation: gradient 6s ease infinite;
+}
+
+#custom-microphone {
+    min-width: 28px;
+    padding: 4px 9px;
+    font-family: Cantarell, Inter, 'JetBrainsMono Nerd Font';
+    font-size: 16px;
+    transition: background 0.1s linear, border-color 0.2s ease;
+}
+
+#custom-microphone:hover {
+    border-color: @wallpaper_dominant;
+}
+
+#custom-microphone.level-0 {
+    background-color: alpha(@module_fg, 0.08);
+}
+
+#custom-microphone.level-1 { background: linear-gradient(to top, shade(@wallpaper_dominant, 0.65) 0%, @wallpaper_dominant 10%, alpha(@module_fg, 0.08) 10%, alpha(@module_fg, 0.08) 100%); }
+#custom-microphone.level-2 { background: linear-gradient(to top, shade(@wallpaper_dominant, 0.65) 0%, @wallpaper_dominant 20%, alpha(@module_fg, 0.08) 20%, alpha(@module_fg, 0.08) 100%); }
+#custom-microphone.level-3 { background: linear-gradient(to top, shade(@wallpaper_dominant, 0.65) 0%, @wallpaper_dominant 30%, alpha(@module_fg, 0.08) 30%, alpha(@module_fg, 0.08) 100%); }
+#custom-microphone.level-4 { background: linear-gradient(to top, shade(@wallpaper_dominant, 0.65) 0%, @wallpaper_dominant 40%, alpha(@module_fg, 0.08) 40%, alpha(@module_fg, 0.08) 100%); }
+#custom-microphone.level-5 { background: linear-gradient(to top, shade(@wallpaper_dominant, 0.65) 0%, @wallpaper_dominant 50%, alpha(@module_fg, 0.08) 50%, alpha(@module_fg, 0.08) 100%); }
+#custom-microphone.level-6 { background: linear-gradient(to top, shade(@wallpaper_dominant, 0.65) 0%, @wallpaper_dominant 60%, alpha(@module_fg, 0.08) 60%, alpha(@module_fg, 0.08) 100%); }
+#custom-microphone.level-7 { background: linear-gradient(to top, shade(@wallpaper_dominant, 0.65) 0%, @wallpaper_dominant 70%, alpha(@module_fg, 0.08) 70%, alpha(@module_fg, 0.08) 100%); }
+#custom-microphone.level-8 { background: linear-gradient(to top, shade(@wallpaper_dominant, 0.65) 0%, @wallpaper_dominant 80%, alpha(@module_fg, 0.08) 80%, alpha(@module_fg, 0.08) 100%); }
+#custom-microphone.level-9 { background: linear-gradient(to top, shade(@wallpaper_dominant, 0.65) 0%, @wallpaper_dominant 90%, alpha(@module_fg, 0.08) 90%, alpha(@module_fg, 0.08) 100%); }
+#custom-microphone.level-10 { background: linear-gradient(to top, shade(@wallpaper_dominant, 0.65) 0%, @wallpaper_dominant 100%); }
+
+#custom-microphone.muted {
+    opacity: 0.62;
+    background-color: alpha(@module_fg, 0.08);
+}
+
+#custom-microphone.unavailable {
+    opacity: 0.45;
+    background-color: transparent;
 }
 
 #custom-weather {

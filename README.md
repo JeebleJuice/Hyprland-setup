@@ -10,32 +10,46 @@ releases.
 
 ## What is restored
 
-- Hyprland configuration, keybindings, animations, window rules, blur, idle
+- Native Hyprland 0.55+ Lua configuration, plus the previous Hyprlang tree as
+  a fallback; both cover keybindings, animations, window rules, blur, idle
   locking, screenshots, and wallpaper shortcuts
-- Waybar layout, CSS, menus, weather, brightness, power controls, and VPN
-  module
+- Waybar layout, CSS, menus, illustrated terminal weather, brightness and
+  power controls, VPN, Bluetooth/controller battery, resource telemetry, and
+  a live microphone meter
 - Static, animated, and video wallpaper handling
 - Wallpaper-derived colors for Waybar, Wlogout, Rofi, SwayNC, Kitty,
   Hyprland borders, KDE/Qt palettes, Kvantum, GTK, KMail, and optional
-  Obsidian and Pywalfox integrations
+  Obsidian highlights
 - Kitty, Rofi, Wlogout, SwayNC, Waypaper, Qt5ct, Qt6ct, Kvantum, NWG Look,
   GTK 3/4, and KDE appearance settings
-- Dolphin appearance, KWrite settings and syntax theme, KMail appearance and
-  message-viewer theme, and default application associations
+- Dolphin, Ark, Gwenview, Okular, Spectacle, KOrganizer, Konsole, and Plasma
+  System Monitor preferences; KWrite syntax styling; KMail appearance and
+  message-viewer theme; and default application associations
+- The source System Monitor pages and the custom pie/line sensor faces that
+  follow the current wallpaper accent
 - The customized `Glassy-Originals-Gtk-Purple-Dark` GTK theme
 - KDE autostart and `Meta + W` support for restoring/cycling the same
   wallpaper in Plasma
+- Pyprland scratchpad and the user portal service override used by the active
+  Hyprland session
+- An optional root installer for SDDM's shared wallpaper and the Intel AX201
+  Bluetooth HID autosuspend workaround
+
+The active compositor configuration is `~/.config/hypr/hyprland.lua`.
+`hyprland.conf` and its `conf/` includes remain available as a fallback for
+systems without Lua configuration support.
 
 The dynamic wallpaper flow is:
 
 1. `SUPER + W` selects the next file in `~/Pictures/wallpapers`.
-2. `apply_wallpaper.sh` uses mpvpaper for video, swww for transitioned static
-   images, or swaybg as the static fallback.
-3. `wall_color.sh` samples the image and runs Wallust.
+2. `apply_wallpaper.sh` uses a low-overhead mpvpaper profile for video, swww
+   for transitioned static images, or swaybg as the static fallback.
+3. `wall_color.sh` samples the image and runs Wallust on first use. Its palette
+   and representative video frame are cached for later switches.
 4. Wallust writes the base palettes.
 5. The script chooses readable foreground colors, creates a three-color
-   Hyprland border, recolors Kvantum and GTK, updates KDE/KMail, and reloads
-   running desktop components where supported.
+   Hyprland border, transitions Waybar's accent, recolors Kvantum and GTK,
+   updates KDE/KMail/Obsidian, and reloads running components where supported.
 
 Waypaper provides the graphical wallpaper picker and stores the current
 wallpaper. The repository does not use Hyprpaper.
@@ -45,12 +59,14 @@ wallpaper. The repository does not use Hyprpaper.
 These must be recreated or supplied separately:
 
 - Wallpaper images and videos
-- KMail accounts, identities, messages, Akonadi data, passwords, and KWallet
+- KMail and KOrganizer accounts, identities, calendars, messages, Akonadi
+  data, passwords, and KWallet
 - NetworkManager connection profiles
 - WireGuard private keys, OpenVPN credentials, Proton credentials, Tailscale
   authentication, and other tokens
 - Browser profiles and personal Obsidian vaults
-- Machine-specific display arrangement and hardware-specific device names
+- Additional machine profiles beyond the documented source-laptop display and
+  touchpad settings
 
 The VPN scripts are included. They discover imported NetworkManager VPNs and
 support Proton VPN, Tailscale, WireGuard/OpenVPN import, and the configured
@@ -70,7 +86,7 @@ sudo dnf copr enable lionheartp/Hyprland
 Install the main Fedora packages:
 
 ~~~bash
-sudo dnf install   hyprland hyprlock hypridle hyprsunset waybar rofi wlogout   SwayNotificationCenter kitty dolphin kwrite kmail   kvantum kvantum-qt5 breeze-icon-theme breeze-cursor-theme   ImageMagick ffmpeg-free swaybg jq zenity   grim slurp wl-clipboard brightnessctl playerctl   pulseaudio-utils wireplumber cliphist hyprpicker   NetworkManager nm-connection-editor kf6-kconfig polkit-kde   binutils gdb util-linux-core curl rsync cargo pipx   google-noto-sans-fonts abattis-cantarell-fonts   fontawesome-6-free-fonts
+sudo dnf install   hyprland hyprlock hypridle hyprsunset waybar rofi wlogout   SwayNotificationCenter kitty dolphin kwrite kmail kcalc korganizer konsole   ark gwenview okular spectacle plasma-systemmonitor plasma-discover-notifier   pam-kwallet bluedevil kvantum kvantum-qt5 breeze-icon-theme ImageMagick   ffmpeg-free swaybg jq zenity socat bluez grim slurp wl-clipboard   brightnessctl playerctl pulseaudio-utils wireplumber cliphist hyprpicker   NetworkManager nm-connection-editor kf6-kconfig polkit-kde binutils gdb   util-linux-core curl rsync cargo pipx google-noto-sans-fonts   abattis-cantarell-fonts fontawesome-6-free-fonts
 ~~~
 
 If a package name changes on a newer Fedora release, use
@@ -90,6 +106,12 @@ cargo install satty
 Log out and back in after `pipx ensurepath`, or make sure
 `~/.local/bin` is on `PATH`.
 
+The browser and Obsidian shortcuts use their Flathub application IDs:
+
+~~~bash
+flatpak install flathub app.zen_browser.zen md.obsidian.Obsidian
+~~~
+
 Optional wallpaper backends:
 
 - swww gives animated transitions for still images.
@@ -106,7 +128,11 @@ Use each project's current upstream installation instructions:
 
 Install **JetBrainsMono Nerd Font** from
 [Nerd Fonts](https://www.nerdfonts.com/font-downloads). Waybar and Kitty use
-its glyphs. Noto Sans and Cantarell come from the Fedora packages above.
+its glyphs. The source setup also uses the **Bibata Modern Classic** cursor and
+the **Candy Icons** theme; install them under `~/.icons/Bibata-Modern-Classic`
+and `~/.local/share/icons/candy-icons`, or change the names in
+`hypr/hyprland.lua` and `hypr/scripts/gtk.sh`. Noto Sans and Cantarell come
+from the Fedora packages above.
 
 ### 2. Clone and apply the repository
 
@@ -129,6 +155,18 @@ Check the result:
 ./check-dependencies.sh
 ~~~
 
+The normal restore only writes user-owned files. To reproduce the source
+machine's SDDM wallpaper integration and persistent `btusb` autosuspend fix,
+review and run the separate privileged installer:
+
+~~~bash
+sudo ./install-system.sh
+~~~
+
+It backs up each exact file it replaces under
+`/var/lib/hyprland-setup/backups/`; it does not copy accounts, credentials, or
+other SDDM configuration. Reboot after installing the Bluetooth module option.
+
 ### 3. Add wallpapers
 
 Put images, GIFs, or videos in:
@@ -150,17 +188,19 @@ folder and run:
 
 Before starting Hyprland, check:
 
-- `~/.config/hypr/conf/monitors/auto.conf`
+- the monitor declarations at the top of `~/.config/hypr/hyprland.lua`
+- `~/.config/hypr/conf/monitors/auto.conf` when using the fallback config
 - `~/.config/hypr/conf/keyboards/keyboard.conf`
-- the `device` block at the bottom of
-  `~/.config/hypr/hyprland.conf`
+- the `hl.device` block in `~/.config/hypr/hyprland.lua` (or the fallback
+  `device` block in `hyprland.conf`)
 - `~/.config/hypr/conf/environments/default.conf`
 - `~/.config/hypr/conf/environments/nvidia.conf` if the new machine uses
   Nvidia
 
-The repository defaults to automatic monitor placement. Do not copy the old
-machine's exact output names unless `hyprctl monitors all` shows the same
-names.
+The checked-in Lua configuration reproduces the source laptop layout:
+`HDMI-A-1` above `eDP-1`. Change those output names or positions before login
+if `hyprctl monitors all` reports different hardware. The fallback Hyprlang
+configuration retains automatic placement for portability.
 
 ### 5. Start the session and test it
 
@@ -209,7 +249,10 @@ VPN profiles or files containing private keys.
 
 ## KMail, KWrite, and Dolphin
 
-The repository restores appearance and layout only.
+The repository restores appearance and layout only. KOrganizer's month-view
+layout is included, but selected Google calendars and Akonadi resource IDs are
+intentionally omitted. Ark/Gwenview/Okular recent-file and extraction histories
+and Spectacle's last absolute save path are omitted as well.
 
 For KMail:
 
@@ -228,10 +271,14 @@ applies it.
 KWrite's `Glass Dark` syntax theme is installed under
 `~/.local/share/org.kde.syntax-highlighting/themes/`.
 
+Plasma System Monitor's source pages are installed under
+`~/.local/share/plasma-systemmonitor/`. The Overview page includes the source
+laptop's disk sensor identifiers; select the new machine's disks in System
+Monitor if those gauges are empty. The custom chart faces use a portable home
+path and read the accent written by `wall_color.sh`.
+
 ## Optional integrations
 
-- Pywalfox: install the Pywalfox native helper at `~/.local/bin/pywalfox` to
-  recolor open Firefox/Zen windows.
 - Obsidian: create and enable a snippet named
   `wallpaper-accent.css` inside any vault under `~/Documents`. The
   wallpaper script discovers matching snippets automatically.
@@ -244,6 +291,8 @@ KWrite's `Glass Dark` syntax theme is installed under
 ## Main shortcuts
 
 - `SUPER + W`: cycle wallpaper and regenerate colors
+- `SUPER + Space`: switch keyboard layout and show its OSD
+- `SUPER + O`: Obsidian
 - `SUPER + Q`: close the focused window
 - `SUPER + E`: Dolphin
 - `SUPER + L`: lock
@@ -251,6 +300,7 @@ KWrite's `Glass Dark` syntax theme is installed under
 - `SUPER + Shift + C`: color picker
 - `SUPER + Shift + B`: restart Waybar
 - `SUPER + Shift + K`: KWrite
+- `SUPER + Shift + M`: KMail
 - `SUPER + Print`: region screenshot in Satty
 - `SUPER + Shift + Print`: save a full screenshot
 - `SUPER + Ctrl + Print`: copy a region screenshot
@@ -263,13 +313,15 @@ A coding agent restoring this setup should:
 2. Install missing commands using the current Fedora package names or the
    linked upstream projects.
 3. Run `./restore.sh`; do not manually scatter files one by one.
-4. Preserve VPN keys, KMail accounts, KWallet, browser profiles, and user data
+4. Review `install-system.sh` and run it only when the SDDM/Bluetooth system
+   settings are appropriate for the target hardware.
+5. Preserve VPN keys, KMail accounts, KWallet, browser profiles, and user data
    outside Git.
-5. Use `hyprctl monitors all` and `hyprctl devices` to adapt only the
+6. Use `hyprctl monitors all` and `hyprctl devices` to adapt only the
    monitor/input sections.
-6. Confirm at least one wallpaper exists, then run
+7. Confirm at least one wallpaper exists, then run
    `~/.config/hypr/scripts/cycle_wall.sh`.
-7. Inspect `journalctl --user -b` and the `/tmp/glass-*.log` files if a
+8. Inspect `journalctl --user -b` and the `/tmp/glass-*.log` files if a
    component fails.
-8. Keep `$HOME`-relative paths portable; do not replace them with a username
+9. Keep `$HOME`-relative paths portable; do not replace them with a username
    from the old machine.

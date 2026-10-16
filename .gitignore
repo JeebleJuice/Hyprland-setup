@@ -4,6 +4,8 @@
 *.swp
 *~
 *.log
+__pycache__/
+*.py[cod]
 
 # Local cache and generated clutter
 .cache/
@@ -14,4 +16,3 @@ temp/
 # Backups and editor metadata
 .obsidian/
 .vscode/
-

@@ -1,0 +1,12 @@
+[General]
+Current View=Month
+Range Mode=0
+
+[Settings]
+DateNavigatorVisible=true
+EventViewerVisible=true
+ResourceViewVisible=true
+TodoViewVisible=false
+
+[Views]
+ShownDatesCount=1

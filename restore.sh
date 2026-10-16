@@ -8,10 +8,12 @@ BACKUP_DIR="$BACKUP_ROOT/$(date +%Y%m%d-%H%M%S)"
 
 CONFIG_DIRS=(
     hypr waybar wallust kitty rofi wlogout swaync gtk-3.0 gtk-4.0
-    qt5ct qt6ct Kvantum waypaper nwg-look autostart
+    qt5ct qt6ct Kvantum waypaper nwg-look autostart pypr systemd
 )
 CONFIG_FILES=(
     kdeglobals breezerc dolphinrc kiorc kmail2rc kwriterc mimeapps.list
+    arkrc gwenviewrc okularrc okularpartrc spectaclerc korganizerrc
+    systemmonitorrc konsolerc
 )
 
 backup_target() {
@@ -36,6 +38,12 @@ backup_target "$HOME/.local/share/messageviewer/themes/glassy" \
     "local/share/messageviewer/themes/glassy"
 backup_target "$HOME/.local/share/org.kde.syntax-highlighting/themes/Glass Dark.theme" \
     "local/share/org.kde.syntax-highlighting/themes/Glass Dark.theme"
+backup_target "$HOME/.local/share/plasma-systemmonitor" \
+    "local/share/plasma-systemmonitor"
+backup_target "$HOME/.local/share/ksysguard/sensorfaces/org.jeeblejuice.ksysguard.wallpaper-piechart-v3" \
+    "local/share/ksysguard/sensorfaces/org.jeeblejuice.ksysguard.wallpaper-piechart-v3"
+backup_target "$HOME/.local/share/ksysguard/sensorfaces/org.jeeblejuice.ksysguard.wallpaper-linechart-v3" \
+    "local/share/ksysguard/sensorfaces/org.jeeblejuice.ksysguard.wallpaper-linechart-v3"
 backup_target "$HOME/.themes/Glassy-Originals-Gtk-Purple-Dark" \
     "themes/Glassy-Originals-Gtk-Purple-Dark"
 
@@ -49,8 +57,18 @@ done
 cp -a -- "$REPO_DIR/local/share/." "$HOME/.local/share/"
 cp -a -- "$REPO_DIR/themes/." "$HOME/.themes/"
 
+# The checked-in GTK 4 links describe the source setup, but recreate them
+# relative to the restored home so they do not depend on a distribution theme
+# path or the username used when the repository was exported.
+ln -sfn ../../.themes/Glassy-Originals-Gtk-Purple-Dark/gtk-4.0/gtk.css \
+    "$HOME/.config/gtk-4.0/gtk.css"
+ln -sfn ../../.themes/Glassy-Originals-Gtk-Purple-Dark/gtk-4.0/gtk-dark.css \
+    "$HOME/.config/gtk-4.0/gtk-dark.css"
+
 chmod +x "$HOME/.config/hypr/scripts/"*.sh
 chmod +x "$HOME/.config/waybar/scripts/"*.sh
+chmod +x "$HOME/.config/waybar/scripts/"*.py
+systemctl --user daemon-reload >/dev/null 2>&1 || true
 
 mkdir -p "$HOME/Pictures/wallpapers"
 
@@ -60,4 +78,4 @@ if [ -d "$BACKUP_DIR" ]; then
 fi
 printf '%s\n' \
     'Next: add wallpapers to ~/Pictures/wallpapers, review monitor/input settings,' \
-    'then log out and choose Hyprland from the login screen.'
+    'then optionally run sudo ./install-system.sh before choosing Hyprland.'

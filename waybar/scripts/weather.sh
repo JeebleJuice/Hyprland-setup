@@ -34,9 +34,9 @@ icon_for_code() {
     esac
 }
 
-data=$(curl -fsS --max-time 6 "$URL" 2>/dev/null)
+data=$(curl -fsS --max-time 10 --retry 2 --retry-delay 1 --retry-all-errors "$URL" 2>/dev/null)
 
-if [ -n "$data" ]; then
+if [ -n "$data" ] && printf "%s" "$data" | jq -e '.current.temperature_2m != null' >/dev/null 2>&1; then
     temp=$(printf "%s" "$data" | jq -r '.current.temperature_2m | round')
     feels=$(printf "%s" "$data" | jq -r '.current.apparent_temperature | round')
     humidity=$(printf "%s" "$data" | jq -r '.current.relative_humidity_2m | round')

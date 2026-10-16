@@ -15,7 +15,7 @@ window {
     border-radius: 30px;
     background-color: rgba(255, 255, 255, 0.1);
     border: 2px;
-    border-color: @sel-bg;
+    border-color: @accent-col;
 }
 
 mainbox {

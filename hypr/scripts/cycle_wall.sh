@@ -41,7 +41,10 @@ echo "$NEXT_WALL" > "$STATE_FILE"
 mkdir -p "$HOME/.cache/hyprlock"
 ln -sfn "$NEXT_WALL" "$HOME/.cache/hyprlock/current_wallpaper"
 
-killall -q waypaper mpvpaper swaybg 2>/dev/null || true
+# Keep the current wallpaper surface alive until apply_wallpaper has prepared
+# its replacement. Killing mpvpaper here exposed Swww's last static image
+# between two animated wallpapers.
+killall -q waypaper 2>/dev/null || true
 # Plasma already owns the notification D-Bus interface. Calling swaync-client
 # there activates swaync.service, which immediately fails because it cannot take
 # that name from Plasma's notification service.
@@ -51,17 +54,8 @@ if [[ "${XDG_CURRENT_DESKTOP:-}" != *KDE* ]] && [ -z "${KDE_FULL_SESSION:-}" ] \
 fi
 sleep 0.2
 
-EXT="${NEXT_WALL##*.}"
 ~/.config/hypr/scripts/apply_wallpaper.sh "$NEXT_WALL" animate
 
-if [[ "${EXT,,}" =~ ^(mp4|webm|mkv|gif)$ ]]; then
-    THUMB="/tmp/wallust_thumb.jpg"
-    if command -v ffmpeg >/dev/null 2>&1; then
-        ffmpeg -y -i "$NEXT_WALL" -ss 00:00:01.000 -vframes 1 "$THUMB" -loglevel quiet
-        ~/.config/hypr/scripts/wall_color.sh "$THUMB"
-    fi
-else
-    ~/.config/hypr/scripts/wall_color.sh "$NEXT_WALL"
-fi
+~/.config/hypr/scripts/wall_color.sh "$NEXT_WALL" "$NEXT_WALL"
 
 notify-send "Wallpaper successfully changed" "$(basename "$NEXT_WALL")"

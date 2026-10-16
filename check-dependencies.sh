@@ -4,12 +4,15 @@ set -u
 
 required=(
     Hyprland waybar wallust waypaper rofi wlogout swaync hyprlock hypridle
-    kitty dolphin kwrite kmail magick jq ffmpeg swaybg grim slurp wl-copy
-    brightnessctl playerctl pactl wpctl curl flock kwriteconfig6 dbus-send
+    kitty dolphin kwrite kmail kcalc korganizer konsole ark gwenview okular
+    spectacle plasma-systemmonitor magick jq
+    ffmpeg swaybg grim slurp wl-copy brightnessctl playerctl pactl parec wpctl
+    curl flock kwriteconfig6 dbus-send busctl bluedevil-wizard ip findmnt
+    lsblk flatpak /usr/libexec/pam_kwallet_init /usr/libexec/DiscoverNotifier
 )
 optional=(
     swww swww-daemon mpvpaper hyprsunset pypr satty hyprpicker cliphist
-    protonvpn tailscale nm-connection-editor zenity gdb nm pywalfox
+    protonvpn tailscale nm-connection-editor zenity gdb nm socat
 )
 
 missing_required=0
@@ -20,6 +23,16 @@ for command_name in "${required[@]}"; do
         printf '  OK      %s\n' "$command_name"
     else
         printf '  MISSING %s\n' "$command_name"
+        missing_required=1
+    fi
+done
+
+printf '\nRequired Flatpak applications:\n'
+for app_id in app.zen_browser.zen md.obsidian.Obsidian; do
+    if flatpak info "$app_id" >/dev/null 2>&1; then
+        printf '  OK      %s\n' "$app_id"
+    else
+        printf '  MISSING %s\n' "$app_id"
         missing_required=1
     fi
 done

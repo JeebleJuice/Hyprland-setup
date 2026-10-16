@@ -2,7 +2,7 @@ backend = "thumb"
 color_space = "lab"
 palette = "dark"
 [templates]
-waybar = { template = "colors-waybar.css", target = "~/.config/waybar/colors.css" }
+waybar = { template = "colors-waybar.css", target = "~/.cache/wallust-waybar-colors.css" }
 rofi = { template = "colors-rofi.rasi", target = "~/.config/rofi/colors.rasi" }
 kitty = { template = "colors-kitty.conf", target = "~/.config/kitty/colors.conf" }
 hyprland = { template = "colors-hyprland.conf", target = "~/.config/hypr/colors-wallust.conf" }

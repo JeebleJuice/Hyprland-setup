@@ -1,0 +1,6 @@
+[General]
+type=image
+background=/var/tmp/glass-sddm-wallpaper.jpg
+showClock=true
+showlogo=hidden
+needsFullUserModel=false

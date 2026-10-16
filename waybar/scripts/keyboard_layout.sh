@@ -52,11 +52,19 @@ write_layout() {
     printf '%s\n' "$1" > "$STATE_FILE"
 }
 
+show_layout_osd() {
+    timeout 1.2s rofi -e "$1" \
+        -no-config \
+        -theme ~/.config/rofi/keyboard-layout-osd.rasi \
+        >/dev/null 2>&1 &
+}
+
 toggle_layout() {
     device="$(get_keyboard_device)"
     if [ -n "${device:-}" ] && hyprctl switchxkblayout "$device" next >/dev/null 2>&1; then
         layout="$(normalize_layout "$(detect_layout)")"
         write_layout "$layout"
+        show_layout_osd "$layout"
         printf '%s\n' "$layout"
         return 0
     fi
@@ -64,6 +72,7 @@ toggle_layout() {
     if hyprctl switchxkblayout all next >/dev/null 2>&1; then
         layout="$(normalize_layout "$(detect_layout)")"
         write_layout "$layout"
+        show_layout_osd "$layout"
         printf '%s\n' "$layout"
     fi
 }

@@ -1,5 +1,6 @@
 #!/bin/bash
 IMG="$1"
+CACHE_SOURCE="${2:-$IMG}"
 
 mkdir -p "$HOME/.cache"
 exec 9>"$HOME/.cache/glass-wall-color.lock"
@@ -9,14 +10,23 @@ sed -i 's/palette = ".*/palette = "dark"/' ~/.config/wallust/wallust.toml
 
 sample_brightness() {
     magick "$1" \
+        -auto-orient \
         -gravity north \
-        -crop 50%x8%+50%+0 \
+        -crop '100%x12%+0+0' \
         +repage \
         -colorspace Gray \
-        -format '%[fx:mean]' info: 2>/dev/null
+        -resize '12x1!' \
+        txt:- 2>/dev/null \
+        | awk '
+            /^[0-9]+,0:/ && match($0, /\(([0-9.]+)\)/, channel) {
+                value = channel[1] / 255
+                if (!seen || value < darkest) darkest = value
+                seen = 1
+            }
+            END { print seen ? darkest : 0.5 }
+        '
 }
 
-BRIGHTNESS="$(sample_brightness "$IMG" || echo 0.5)"
 CONTRAST_FILE="$HOME/.config/waybar/contrast.css"
 WLOGOUT_COLORS_FILE="$HOME/.config/wlogout/colors.css"
 WLOGOUT_ICON_DIR="$HOME/.cache/wlogout-icons"
@@ -26,14 +36,82 @@ KVANTUM_ACCENT_STATE="$HOME/.config/Kvantum/Glassy/.wallpaper-accent"
 KMAIL_GLASS_COLORS="$HOME/.local/share/messageviewer/themes/glassy/wallpaper.css"
 GTK_THEME_DIR="$HOME/.themes/Glassy-Originals-Gtk-Purple-Dark"
 GTK_THEME_NAME="Glassy-Originals-Gtk-Purple-Dark"
-PYWAL_COLORS="$HOME/.cache/wal/colors.json"
-PYWALFOX_BIN="$HOME/.local/bin/pywalfox"
+WAYBAR_COLORS="$HOME/.config/waybar/colors.css"
+WAYBAR_STYLE="$HOME/.config/waybar/style.css"
+WALLUST_WAYBAR_COLORS="$HOME/.cache/wallust-waybar-colors.css"
+SYSTEM_MONITOR_OVERVIEW="$HOME/.local/share/plasma-systemmonitor/overview.page"
+SYSTEM_MONITOR_ACCENT_FILE="$HOME/.cache/glass-system-monitor-accent"
+PALETTE_CACHE_ROOT="$HOME/.cache/glass-wallpaper-palettes"
+PALETTE_CACHE_VERSION="3"
+CACHE_SOURCE_REAL="$(realpath "$CACHE_SOURCE" 2>/dev/null || printf '%s' "$CACHE_SOURCE")"
+CACHE_SOURCE_STAT="$(stat -c '%s:%Y' "$CACHE_SOURCE" 2>/dev/null || printf 'unknown')"
+PALETTE_CACHE_KEY="$(printf '%s\n%s\n%s\n' \
+    "$PALETTE_CACHE_VERSION" "$CACHE_SOURCE_REAL" "$CACHE_SOURCE_STAT" \
+    | sha256sum | cut -d' ' -f1)"
+PALETTE_CACHE_DIR="$PALETTE_CACHE_ROOT/$PALETTE_CACHE_KEY"
+CACHE_HIT=false
+if [ -f "$PALETTE_CACHE_DIR/complete" ] \
+    && [ -f "$PALETTE_CACHE_DIR/brightness" ] \
+    && [ -f "$PALETTE_CACHE_DIR/dominant" ] \
+    && [ -f "$PALETTE_CACHE_DIR/borders" ] \
+    && [ -f "$PALETTE_CACHE_DIR/waybar.css" ] \
+    && [ -f "$PALETTE_CACHE_DIR/rofi.rasi" ] \
+    && [ -f "$PALETTE_CACHE_DIR/kitty.conf" ] \
+    && [ -f "$PALETTE_CACHE_DIR/hyprland.conf" ] \
+    && [ -f "$PALETTE_CACHE_DIR/wlogout.css" ] \
+    && [ -f "$PALETTE_CACHE_DIR/swaync.css" ]; then
+    CACHE_HIT=true
+fi
+
+# Cache one representative frame for video wallpapers so later palette
+# changes do not invoke ffmpeg again.
+if [ "$CACHE_HIT" = false ] \
+    && [[ "${CACHE_SOURCE##*.}" =~ ^(mp4|MP4|webm|WEBM|mkv|MKV|gif|GIF)$ ]] \
+    && command -v ffmpeg >/dev/null 2>&1; then
+    mkdir -p "$PALETTE_CACHE_DIR"
+    IMG="$PALETTE_CACHE_DIR/frame.jpg"
+    ffmpeg -y -i "$CACHE_SOURCE" -ss 00:00:01.000 -vframes 1 "$IMG" -loglevel quiet
+fi
+OLD_WAYBAR_ACCENT="$(sed -n \
+    's/^@define-color wallpaper_dominant \(#[[:xdigit:]]\{6\}\);$/\1/p' \
+    "$WAYBAR_COLORS" | head -n 1)"
 OBSIDIAN_ACCENT_FILES=()
 if [ -d "$HOME/Documents" ]; then
     mapfile -d '' -t OBSIDIAN_ACCENT_FILES < <(
         find "$HOME/Documents" -path '*/.obsidian/snippets/wallpaper-accent.css' -print0
     )
 fi
+
+animate_waybar_accent() {
+    local old="$1"
+    local new="$2"
+    local steps=6
+    local step old_r old_g old_b new_r new_g new_b red green blue color
+
+    if [[ ! "$old" =~ ^#[[:xdigit:]]{6}$ ]]; then
+        old="$new"
+    fi
+    [[ "$new" =~ ^#[[:xdigit:]]{6}$ ]] || return
+
+    old_r=$((16#${old:1:2}))
+    old_g=$((16#${old:3:2}))
+    old_b=$((16#${old:5:2}))
+    new_r=$((16#${new:1:2}))
+    new_g=$((16#${new:3:2}))
+    new_b=$((16#${new:5:2}))
+
+    for step in $(seq 1 "$steps"); do
+        red=$((old_r + (new_r - old_r) * step / steps))
+        green=$((old_g + (new_g - old_g) * step / steps))
+        blue=$((old_b + (new_b - old_b) * step / steps))
+        printf -v color '#%02X%02X%02X' "$red" "$green" "$blue"
+        sed -i \
+            "s/^@define-color wallpaper_dominant .*/@define-color wallpaper_dominant $color;/" \
+            "$WAYBAR_COLORS"
+        touch "$WAYBAR_STYLE"
+        sleep 0.04
+    done
+}
 
 update_kvantum_svg_accent() {
     local accent="$1"
@@ -156,6 +234,18 @@ update_qt_text_color() {
     fi
 }
 
+update_system_monitor_overview() {
+    local accent_rgb="$1"
+
+    [ -f "$SYSTEM_MONITOR_OVERVIEW" ] || return
+    sed -i \
+        -e "s|^cpu/all/usage=.*|cpu/all/usage=$accent_rgb|" \
+        -e "s|^gpu/all/usage=.*|gpu/all/usage=$accent_rgb|" \
+        -e "s|^memory/physical/used=.*|memory/physical/used=$accent_rgb|" \
+        -e "s|^memory/swap/used=.*|memory/swap/used=$accent_rgb|" \
+        "$SYSTEM_MONITOR_OVERVIEW"
+}
+
 update_gtk_theme_accent() {
     local accent="$1"
     local red=$((16#${accent:1:2}))
@@ -210,55 +300,6 @@ update_obsidian_highlights() {
             -e "s/^    --wallpaper-soft: .*/    --wallpaper-soft: rgba($red, $green, $blue, 0.18);/" \
             "$css"
     done
-}
-
-update_pywalfox_palette() {
-    local accent="$1"
-    local background foreground
-    local -a colors
-    local index
-
-    [ -x "$PYWALFOX_BIN" ] || return
-    mkdir -p "$(dirname "$PYWAL_COLORS")"
-
-    background="$(sed -n 's/^@define-color background \(#[[:xdigit:]]\{6\}\);/\1/p' \
-        "$HOME/.config/waybar/colors.css" | head -n 1)"
-    foreground="$(sed -n 's/^@define-color foreground \(#[[:xdigit:]]\{6\}\);/\1/p' \
-        "$HOME/.config/waybar/colors.css" | head -n 1)"
-    background="${background:-#141618}"
-    foreground="${foreground:-#F4F6F8}"
-
-    for index in {0..8}; do
-        colors[index]="$(sed -n "s/^@define-color color$index \\(#[[:xdigit:]]\\{6\\}\\);/\\1/p" \
-            "$HOME/.config/waybar/colors.css" | head -n 1)"
-    done
-    colors[0]="${colors[0]:-$background}"
-    colors[1]="$accent"
-    for index in {2..8}; do
-        colors[index]="${colors[index]:-$accent}"
-    done
-
-    printf '{\n  "wallpaper": "%s",\n  "alpha": "100",\n' "$IMG" > "$PYWAL_COLORS"
-    printf '  "special": {"background": "%s", "foreground": "%s", "cursor": "%s"},\n' \
-        "$background" "$foreground" "$foreground" >> "$PYWAL_COLORS"
-    printf '  "colors": {\n' >> "$PYWAL_COLORS"
-    for index in {0..15}; do
-        if [ "$index" -le 8 ]; then
-            color="${colors[index]}"
-        else
-            color="${colors[index-8]}"
-        fi
-        if [ "$index" -lt 15 ]; then
-            printf '    "color%d": "%s",\n' "$index" "$color" >> "$PYWAL_COLORS"
-        else
-            printf '    "color%d": "%s"\n' "$index" "$color" >> "$PYWAL_COLORS"
-        fi
-    done
-    printf '  }\n}\n' >> "$PYWAL_COLORS"
-
-    # The extension applies this through Firefox's Theme API, which updates
-    # every open Zen window without a browser restart.
-    "$PYWALFOX_BIN" update >/dev/null 2>&1 || true
 }
 
 update_kmail_glass_theme() {
@@ -521,6 +562,67 @@ update_wlogout_icons() {
     done
 }
 
+color_is_chromatic() {
+    local color="$1"
+    local red green blue min max
+
+    [[ "$color" =~ ^#[[:xdigit:]]{6}$ ]] || return 1
+    red=$((16#${color:1:2}))
+    green=$((16#${color:3:2}))
+    blue=$((16#${color:5:2}))
+    min="$red"
+    max="$red"
+    ((green < min)) && min="$green"
+    ((blue < min)) && min="$blue"
+    ((green > max)) && max="$green"
+    ((blue > max)) && max="$blue"
+    ((max > 0 && 100 * (max - min) >= 30 * max))
+}
+
+normalize_accent_color() {
+    local color="$1"
+    local red=$((16#${color:1:2}))
+    local green=$((16#${color:3:2}))
+    local blue=$((16#${color:5:2}))
+
+    awk -v r="$red" -v g="$green" -v b="$blue" '
+        function render_hsv( sector, fraction, p, q, t) {
+            sector = int(h * 6)
+            fraction = h * 6 - sector
+            p = v * (1 - s)
+            q = v * (1 - fraction * s)
+            t = v * (1 - (1 - fraction) * s)
+            sector %= 6
+            if (sector == 0)      { rr = v; gg = t; bb = p }
+            else if (sector == 1) { rr = q; gg = v; bb = p }
+            else if (sector == 2) { rr = p; gg = v; bb = t }
+            else if (sector == 3) { rr = p; gg = q; bb = v }
+            else if (sector == 4) { rr = t; gg = p; bb = v }
+            else                  { rr = v; gg = p; bb = q }
+            luma = 255 * (0.299 * rr + 0.587 * gg + 0.114 * bb)
+        }
+        BEGIN {
+            r /= 255; g /= 255; b /= 255
+            max = r; if (g > max) max = g; if (b > max) max = b
+            min = r; if (g < min) min = g; if (b < min) min = b
+            delta = max - min
+            if (delta == 0) h = 0
+            else if (max == r) h = ((g - b) / delta) / 6
+            else if (max == g) h = ((b - r) / delta + 2) / 6
+            else h = ((r - g) / delta + 4) / 6
+            if (h < 0) h++
+            s = max == 0 ? 0 : delta / max
+            v = max
+            if (s < 0.45) s = 0.45
+            if (v < 0.72) v = 0.72
+            render_hsv()
+            while (luma < 130 && v < 0.999) { v += 0.02; if (v > 1) v = 1; render_hsv() }
+            while (luma < 130 && s > 0.45) { s -= 0.02; if (s < 0.45) s = 0.45; render_hsv() }
+            printf "#%02X%02X%02X\n", int(rr * 255 + 0.5), int(gg * 255 + 0.5), int(bb * 255 + 0.5)
+        }
+    '
+}
+
 pick_chromatic_color() {
     awk '
         match($0, /^[[:space:]]*([0-9]+):/, amount) &&
@@ -538,13 +640,16 @@ pick_chromatic_color() {
             brightness = max / 255
             score = amount[1] * saturation * brightness * brightness
 
-            if (max >= 55 && saturation >= 0.22 && score > best_score) {
-                best_score = score
-                best_color = hex
+            if (max >= 55 && saturation >= 0.22 && score > strong_score) {
+                strong_score = score
+                strong_color = hex
+            } else if (max >= 55 && saturation >= 0.06 && score > muted_score) {
+                muted_score = score
+                muted_color = hex
             }
         }
 
-        END { print best_color }
+        END { print strong_color != "" ? strong_color : muted_color }
     '
 }
 
@@ -658,10 +763,33 @@ sample_wallpaper_colors() {
         '
 }
 
-DOMINANT_COLOR="$(dominant_color "$IMG" || true)"
-mapfile -t BORDER_COLORS < <(sample_wallpaper_colors "$IMG")
+if [ "$CACHE_HIT" = true ]; then
+    BRIGHTNESS="$(<"$PALETTE_CACHE_DIR/brightness")"
+    DOMINANT_COLOR="$(<"$PALETTE_CACHE_DIR/dominant")"
+    mapfile -t BORDER_COLORS < "$PALETTE_CACHE_DIR/borders"
+else
+    BRIGHTNESS="$(sample_brightness "$IMG" || echo 0.5)"
+    DOMINANT_COLOR="$(dominant_color "$IMG" || true)"
+    mapfile -t BORDER_COLORS < <(sample_wallpaper_colors "$IMG")
 
-if awk -v b="$BRIGHTNESS" 'BEGIN { exit !(b > 0.58) }'; then
+    if [[ "$DOMINANT_COLOR" =~ ^#[[:xdigit:]]{6}$ ]]; then
+        DOMINANT_COLOR="$(normalize_accent_color "$DOMINANT_COLOR")"
+    elif color_is_chromatic "$OLD_WAYBAR_ACCENT"; then
+        DOMINANT_COLOR="$(normalize_accent_color "$OLD_WAYBAR_ACCENT")"
+    else
+        DOMINANT_COLOR="#7AA2F7"
+    fi
+
+    for index in "${!BORDER_COLORS[@]}"; do
+        if color_is_chromatic "${BORDER_COLORS[index]}"; then
+            BORDER_COLORS[index]="$(normalize_accent_color "${BORDER_COLORS[index]}")"
+        else
+            BORDER_COLORS[index]="$DOMINANT_COLOR"
+        fi
+    done
+fi
+
+if awk -v b="$BRIGHTNESS" 'BEGIN { exit !(b > 0.64) }'; then
     ICON_COLOR="#111111"
     cat > "$CONTRAST_FILE" <<'EOF'
 @define-color module_fg #111111;
@@ -675,19 +803,66 @@ else
 EOF
 fi
 
-update_wlogout_icons "$ICON_COLOR"
+# Restore a cached palette or ask Wallust to calculate it once. Wallust's OSC
+# sequences are suppressed because wallpaper changes do not run in a terminal.
+if [ "$CACHE_HIT" = true ]; then
+    cp "$PALETTE_CACHE_DIR/waybar.css" "$WALLUST_WAYBAR_COLORS"
+    cp "$PALETTE_CACHE_DIR/rofi.rasi" "$HOME/.config/rofi/colors.rasi"
+    cp "$PALETTE_CACHE_DIR/kitty.conf" "$HOME/.config/kitty/colors.conf"
+    cp "$PALETTE_CACHE_DIR/hyprland.conf" "$HOME/.config/hypr/colors-wallust.conf"
+    cp "$PALETTE_CACHE_DIR/wlogout.css" "$HOME/.config/wlogout/colors.css"
+    cp "$PALETTE_CACHE_DIR/swaync.css" "$HOME/.config/swaync/colors.css"
+else
+    wallust run --skip-sequences --quiet "$IMG" >/dev/null 2>&1
+    mkdir -p "$PALETTE_CACHE_DIR"
+    printf '%s\n' "$BRIGHTNESS" > "$PALETTE_CACHE_DIR/brightness"
+    printf '%s\n' "$DOMINANT_COLOR" > "$PALETTE_CACHE_DIR/dominant"
+    printf '%s\n' "${BORDER_COLORS[@]}" > "$PALETTE_CACHE_DIR/borders"
+    cp "$WALLUST_WAYBAR_COLORS" "$PALETTE_CACHE_DIR/waybar.css"
+    cp "$HOME/.config/rofi/colors.rasi" "$PALETTE_CACHE_DIR/rofi.rasi"
+    cp "$HOME/.config/kitty/colors.conf" "$PALETTE_CACHE_DIR/kitty.conf"
+    cp "$HOME/.config/hypr/colors-wallust.conf" "$PALETTE_CACHE_DIR/hyprland.conf"
+    cp "$HOME/.config/wlogout/colors.css" "$PALETTE_CACHE_DIR/wlogout.css"
+    cp "$HOME/.config/swaync/colors.css" "$PALETTE_CACHE_DIR/swaync.css"
+    : > "$PALETTE_CACHE_DIR/complete"
+fi
 
-wallust run "$IMG"
+# Stage Wallust's complete Waybar palette without first exposing its generated
+# accent. Keep the current accent until the smooth transition below.
+if [ -f "$WALLUST_WAYBAR_COLORS" ]; then
+    if [[ "$OLD_WAYBAR_ACCENT" =~ ^#[[:xdigit:]]{6}$ ]]; then
+        sed -i \
+            "s/^@define-color wallpaper_dominant .*/@define-color wallpaper_dominant $OLD_WAYBAR_ACCENT;/" \
+            "$WALLUST_WAYBAR_COLORS"
+    fi
+    cp "$WALLUST_WAYBAR_COLORS" "${WAYBAR_COLORS}.tmp.$$"
+    mv -f "${WAYBAR_COLORS}.tmp.$$" "$WAYBAR_COLORS"
+fi
 
 # Match wlogout labels to the wallpaper-aware monochrome icons.
 sed -i "s/^@define-color action_foreground .*/@define-color action_foreground $ICON_COLOR;/" \
     "$WLOGOUT_COLORS_FILE"
+
+if [ "${#BORDER_COLORS[@]}" -gt 0 ]; then
+    BORDER_COLOR_1="${BORDER_COLORS[0]}"
+    BORDER_COLOR_2="${BORDER_COLORS[1]:-${BORDER_COLORS[0]}}"
+    BORDER_COLOR_3="${BORDER_COLORS[2]:-${BORDER_COLORS[0]}}"
+
+    sed -i \
+        -e "s/^\\\$wallpaper_border1 = .*/\\\$wallpaper_border1 = rgb(${BORDER_COLOR_1#\#})/" \
+        -e "s/^\\\$wallpaper_border2 = .*/\\\$wallpaper_border2 = rgb(${BORDER_COLOR_2#\#})/" \
+        -e "s/^\\\$wallpaper_border3 = .*/\\\$wallpaper_border3 = rgb(${BORDER_COLOR_3#\#})/" \
+        "$HOME/.config/hypr/colors-wallust.conf"
+fi
 
 if [[ "$DOMINANT_COLOR" =~ ^#[[:xdigit:]]{6}$ ]]; then
     ACCENT_RED=$((16#${DOMINANT_COLOR:1:2}))
     ACCENT_GREEN=$((16#${DOMINANT_COLOR:3:2}))
     ACCENT_BLUE=$((16#${DOMINANT_COLOR:5:2}))
     ACCENT_RGB="$ACCENT_RED,$ACCENT_GREEN,$ACCENT_BLUE"
+
+    printf '%s\n' "$DOMINANT_COLOR" > "${SYSTEM_MONITOR_ACCENT_FILE}.tmp.$$"
+    mv -f "${SYSTEM_MONITOR_ACCENT_FILE}.tmp.$$" "$SYSTEM_MONITOR_ACCENT_FILE"
 
     if awk -v r="$ACCENT_RED" -v g="$ACCENT_GREEN" -v b="$ACCENT_BLUE" \
         'BEGIN { exit !((0.299*r + 0.587*g + 0.114*b) > 150) }'; then
@@ -714,24 +889,11 @@ if [[ "$DOMINANT_COLOR" =~ ^#[[:xdigit:]]{6}$ ]]; then
         "$LINK_RED" "$LINK_GREEN" "$LINK_BLUE"
     LINK_RGB="$LINK_RED,$LINK_GREEN,$LINK_BLUE"
 
-    # Glassy application surfaces are always dark. Panel/icon contrast may be
-    # black on a bright wallpaper, but Qt text must remain light and readable.
-    update_qt_text_color "#F4F6F8" "244,246,248" \
-        "$DOMINANT_COLOR" "$ACCENT_RGB" \
-        "$SELECTION_TEXT_COLOR" "$SELECTION_TEXT_RGB"
-    update_kvantum_svg_accent "$DOMINANT_COLOR"
-    update_gtk_theme_accent "$DOMINANT_COLOR"
-    update_obsidian_highlights "$DOMINANT_COLOR"
-    update_pywalfox_palette "$DOMINANT_COLOR"
-    update_kmail_glass_theme "$DOMINANT_COLOR" "$LINK_COLOR" \
-        "$ICON_COLOR" "$SELECTION_TEXT_COLOR" "$LINK_RGB"
-    refresh_kmail_unread_color_live \
-        "$LINK_RED" "$LINK_GREEN" "$LINK_BLUE"
-
-    sed -i "s/^@define-color wallpaper_dominant .*/@define-color wallpaper_dominant $DOMINANT_COLOR;/" \
-        "$HOME/.config/waybar/colors.css"
+    # Update visible desktop surfaces before slower application integrations.
     sed -i "s/^@define-color wallpaper_dominant .*/@define-color wallpaper_dominant $DOMINANT_COLOR;/" \
         "$HOME/.config/wlogout/colors.css"
+    sed -i "s/^@define-color wallpaper_dominant .*/@define-color wallpaper_dominant $DOMINANT_COLOR;/" \
+        "$HOME/.config/swaync/colors.css"
     sed -i "s/^\\\$wallpaper_dominant = .*/\\\$wallpaper_dominant = rgb(${DOMINANT_COLOR#\#})/" \
         "$HOME/.config/hypr/colors-wallust.conf"
 
@@ -741,30 +903,33 @@ if [[ "$DOMINANT_COLOR" =~ ^#[[:xdigit:]]{6}$ ]]; then
         -e "s/^[[:space:]]*accent-soft: .*/    accent-soft: ${DOMINANT_COLOR}66;/" \
         -e "s/^[[:space:]]*sel-bg: .*/    sel-bg: ${DOMINANT_COLOR}D1;/" \
         "$HOME/.config/rofi/colors.rasi"
+
+    if pgrep -x waybar >/dev/null 2>&1; then
+        animate_waybar_accent "$OLD_WAYBAR_ACCENT" "$DOMINANT_COLOR"
+    else
+        sed -i \
+            "s/^@define-color wallpaper_dominant .*/@define-color wallpaper_dominant $DOMINANT_COLOR;/" \
+            "$WAYBAR_COLORS"
+    fi
+    if [[ "${XDG_CURRENT_DESKTOP:-}" != *KDE* ]] && [ -z "${KDE_FULL_SESSION:-}" ] \
+        && command -v swaync-client >/dev/null 2>&1; then
+        timeout 1s swaync-client -rs >/dev/null 2>&1 || true
+    fi
+    timeout 1s hyprctl reload >/dev/null 2>&1 || true
+
+    update_wlogout_icons "$ICON_COLOR"
+    update_qt_text_color "#F4F6F8" "244,246,248" \
+        "$DOMINANT_COLOR" "$ACCENT_RGB" \
+        "$SELECTION_TEXT_COLOR" "$SELECTION_TEXT_RGB"
+    update_system_monitor_overview "$ACCENT_RGB"
+    update_kvantum_svg_accent "$DOMINANT_COLOR"
+    update_gtk_theme_accent "$DOMINANT_COLOR"
+    update_obsidian_highlights "$DOMINANT_COLOR"
+    update_kmail_glass_theme "$DOMINANT_COLOR" "$LINK_COLOR" \
+        "$ICON_COLOR" "$SELECTION_TEXT_COLOR" "$LINK_RGB"
+    refresh_kmail_unread_color_live \
+        "$LINK_RED" "$LINK_GREEN" "$LINK_BLUE"
 fi
 
-if [ "${#BORDER_COLORS[@]}" -gt 0 ]; then
-    BORDER_COLOR_1="${BORDER_COLORS[0]}"
-    BORDER_COLOR_2="${BORDER_COLORS[1]:-${BORDER_COLORS[0]}}"
-    BORDER_COLOR_3="${BORDER_COLORS[2]:-${BORDER_COLORS[0]}}"
-
-    sed -i \
-        -e "s/^\\\$wallpaper_border1 = .*/\\\$wallpaper_border1 = rgb(${BORDER_COLOR_1#\#})/" \
-        -e "s/^\\\$wallpaper_border2 = .*/\\\$wallpaper_border2 = rgb(${BORDER_COLOR_2#\#})/" \
-        -e "s/^\\\$wallpaper_border3 = .*/\\\$wallpaper_border3 = rgb(${BORDER_COLOR_3#\#})/" \
-        "$HOME/.config/hypr/colors-wallust.conf"
-fi
-
-sleep 0.2
-
-reload_kvantum_style
-refresh_kmail_folder_counts_live
-
-# These are Hyprland session components. In Plasma, swaync-client would
-# D-Bus-activate swaync and make it fight Plasma for the notification name.
-killall -SIGUSR2 waybar 2>/dev/null || true
-if [[ "${XDG_CURRENT_DESKTOP:-}" != *KDE* ]] && [ -z "${KDE_FULL_SESSION:-}" ] \
-    && command -v swaync-client >/dev/null 2>&1; then
-    swaync-client -rs >/dev/null 2>&1 || true
-fi
-hyprctl reload >/dev/null 2>&1 || true
+reload_kvantum_style || true
+refresh_kmail_folder_counts_live || true

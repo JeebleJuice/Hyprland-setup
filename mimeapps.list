@@ -1,6 +1,7 @@
 [Added Associations]
 application/pdf=org.mozilla.firefox.desktop;
 application/x-matroska=vlc.desktop;
+image/png=okularApplication_kimgio.desktop;app.zen_browser.zen.desktop;org.kde.krita.png.desktop;org.kde.gwenview.desktop;
 video/3gp=vlc.desktop;
 video/3gpp=vlc.desktop;
 video/3gpp2=vlc.desktop;
@@ -37,6 +38,9 @@ video/x-theora+ogg=vlc.desktop;
 [Default Applications]
 application/pdf=org.mozilla.firefox.desktop;
 application/x-matroska=vlc.desktop;
+application/xhtml+xml=app.zen_browser.zen.desktop
+image/png=okularApplication_kimgio.desktop;
+text/html=app.zen_browser.zen.desktop
 video/3gp=vlc.desktop;
 video/3gpp=vlc.desktop;
 video/3gpp2=vlc.desktop;
@@ -69,3 +73,10 @@ video/x-ogm=vlc.desktop;
 video/x-ogm+ogg=vlc.desktop;
 video/x-theora=vlc.desktop;
 video/x-theora+ogg=vlc.desktop;
+x-scheme-handler/about=app.zen_browser.zen.desktop
+x-scheme-handler/http=app.zen_browser.zen.desktop
+x-scheme-handler/https=app.zen_browser.zen.desktop
+x-scheme-handler/unknown=app.zen_browser.zen.desktop
+
+[Removed Associations]
+image/png=org.kde.kolourpaint.desktop;brave-browser.desktop;org.kde.showfoto.desktop;com.brave.Browser.desktop;

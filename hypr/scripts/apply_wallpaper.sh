@@ -4,11 +4,16 @@ set -euo pipefail
 image="${1:-}"
 mode="${2:-instant}"
 thumb="/tmp/glass-wallpaper-thumb.jpg"
+mpvpaper_socket="${XDG_RUNTIME_DIR:-/tmp}/glass-mpvpaper.sock"
 
 if [ -z "$image" ] || [ ! -f "$image" ]; then
     notify-send "Wallpaper failed" "Missing image: ${image:-<empty>}"
     exit 1
 fi
+
+# Refresh both Hyprlock's image and the login-screen copy whenever the desktop
+# wallpaper changes.
+"$HOME/.config/hypr/scripts/prepare_lock_wallpaper.sh" >/dev/null 2>&1 || true
 
 ext="${image##*.}"
 
@@ -50,8 +55,35 @@ fi
 case "${image##*.}" in
     mp4|MP4|webm|WEBM|mkv|MKV|gif|GIF)
         if command -v mpvpaper >/dev/null 2>&1; then
-            killall -q mpvpaper swaybg 2>/dev/null || true
-            mpvpaper -o "no-audio --loop-playlist" ALL "$image" >/tmp/glass-mpvpaper.log 2>&1 &
+            # Reuse the active player when moving between animated wallpapers.
+            # This keeps its layer visible while mpv replaces the media, rather
+            # than briefly exposing Swww's most recent static wallpaper.
+            if pgrep -x mpvpaper >/dev/null 2>&1 \
+                && [ -S "$mpvpaper_socket" ] \
+                && command -v socat >/dev/null 2>&1; then
+                if jq -cn --arg path "$image" \
+                    '{command:["loadfile",$path,"replace"]}' \
+                    | socat - "UNIX-CONNECT:$mpvpaper_socket" >/dev/null 2>&1; then
+                    exit 0
+                fi
+            fi
+
+            killall -q mpvpaper 2>/dev/null || true
+            rm -f "$mpvpaper_socket"
+            # Do not inherit mpv.conf: display-resampling and interpolation are
+            # wasteful for a continuously running animated wallpaper. Limiting
+            # the source to 15 fps keeps the effect smooth while substantially
+            # reducing compositor and decoder load.
+            mpvpaper -o "config=no no-audio loop-playlist vf=fps=15 interpolation=no video-sync=audio input-ipc-server=$mpvpaper_socket" \
+                ALL "$image" >/tmp/glass-mpvpaper.log 2>&1 &
+
+            # Do not remove any fallback surface until mpvpaper is accepting
+            # commands and its new background layer has been created.
+            for _ in {1..20}; do
+                [ -S "$mpvpaper_socket" ] && break
+                sleep 0.05
+            done
+            killall -q swaybg 2>/dev/null || true
             exit 0
         fi
 
@@ -77,6 +109,8 @@ if command -v swww >/dev/null 2>&1 && command -v swww-daemon >/dev/null 2>&1; th
     else
         swww img "$image"
     fi
+    killall -q mpvpaper swaybg 2>/dev/null || true
+    rm -f "$mpvpaper_socket"
     exit 0
 fi
 

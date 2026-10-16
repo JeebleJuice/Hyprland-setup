@@ -1,11 +1,12 @@
 {
+    "reload_style_on_change": true,
     "layer": "top",
     "position": "top",
     "height": 53,
     "spacing": 5,
     "margin-bottom": -11,
     "modules-left": [
-        "hyprland/workspaces"
+        "ext/workspaces"
     ],
     "modules-center": [],
     "modules-right": [
@@ -14,26 +15,25 @@
         "network",
         "custom/vpn",
         "pulseaudio",
+        "custom/microphone",
         "backlight",
-        "bluetooth",
+        "custom/bluetooth",
         "battery",
         "custom/weather",
         "custom/resources",
-        "clock"
+        "custom/clock"
     ],
-    "hyprland/workspaces": {
-        "format": "{icon}",
-        "format-active": " {icon} ",
+    "ext/workspaces": {
+        "format": "{name}",
         "on-click": "activate"
     },
-    "clock": {
-        "timezone": "Europe/Copenhagen",
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "interval": 60,
-        "format": "{:%H:%M}",
+    "custom/clock": {
+        "exec": "python3 ~/.config/waybar/scripts/clock_calendar.py",
+        "return-type": "json",
+        "interval": 30,
         "min-length": 5,
         "max-length": 25,
-        "on-click": "gnome-calendar"
+        "on-click": "korganizer"
     },
     "custom/weather": {
         "exec": "~/.config/waybar/scripts/weather.sh",
@@ -43,9 +43,11 @@
         "on-click": "~/.config/waybar/scripts/weather_menu.sh"
     },
     "custom/resources": {
-        "format": "",
-        "tooltip": "System Monitor",
-        "on-click": "gnome-system-monitor"
+        "exec": "~/.config/waybar/scripts/resource_status.sh",
+        "return-type": "json",
+        "interval": 2,
+        "tooltip": true,
+        "on-click": "plasma-systemmonitor"
     },
     "battery": {
         "states": {
@@ -81,7 +83,9 @@
         "reverse-scrolling": true
     },
     "network": {
-        "format-wifi": "    {essid}",
+        "align": 0.5,
+        "justify": "center",
+        "format-wifi": "",
         "format-ethernet": " {ifname}",
         "format-linked": "{ifname} (No IP) ",
         "format-disconnected": "⚠ Disconnected",
@@ -99,13 +103,11 @@
         "on-click": "~/.config/waybar/scripts/vpn.sh menu",
         "on-click-right": "~/.config/waybar/scripts/vpn.sh toggle"
     },
-    "bluetooth": {
-        "format": "   {status}",
-        "format-connected": "   {device_alias}",
-        "tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
-        "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
-        "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
-        "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_address}\t{device_battery_percentage}%",
+    "custom/bluetooth": {
+        "exec": "~/.config/waybar/scripts/bluetooth_status.sh",
+        "return-type": "json",
+        "interval": 5,
+        "tooltip": true,
         "on-click": "~/.config/waybar/scripts/bluetooth_menu.sh"
     },
     "pulseaudio": {
@@ -120,5 +122,15 @@
             "default": ["", "", ""]
         },
         "on-click": "pavucontrol"
+    },
+    "custom/microphone": {
+        "exec": "~/.config/waybar/scripts/microphone_meter.py",
+        "return-type": "json",
+        "restart-interval": 2,
+        "tooltip": true,
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle",
+        "on-click-right": "pavucontrol --tab=4",
+        "on-scroll-up": "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SOURCE@ 5%+",
+        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 5%-"
     }
 }
