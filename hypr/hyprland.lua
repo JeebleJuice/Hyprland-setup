@@ -99,6 +99,9 @@ hl.device({
     enabled = false,
 })
 
+-- Swipe left or right with three fingers to move between workspaces.
+hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
+
 -- Configure dynamic-cursors only when hyprpm has successfully loaded it.
 if hl.plugin.dynamic_cursors then
     hl.config({
