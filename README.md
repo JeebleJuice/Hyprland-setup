@@ -13,7 +13,7 @@ releases.
 - Native Hyprland 0.55+ Lua configuration, plus the previous Hyprlang tree as
   a fallback; both cover keybindings, animations, window rules, blur, idle
   locking, screenshots, wallpaper shortcuts, and three-finger horizontal
-  workspace swiping
+  swiping across both existing and empty numbered workspaces
 - Waybar layout, CSS, menus, illustrated terminal weather, brightness and
   power controls, VPN, Bluetooth/controller battery, resource telemetry, and
   a live microphone meter

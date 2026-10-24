@@ -78,6 +78,10 @@ hl.config({
         allow_workspace_cycles = true,
         pass_mouse_when_bound = false,
     },
+    gestures = {
+        -- Include empty numbered workspaces when swiping in either direction.
+        workspace_swipe_use_r = true,
+    },
     misc = {
         disable_hyprland_logo = true,
         disable_hyprland_guiutils_check = true,

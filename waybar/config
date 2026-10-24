@@ -21,6 +21,7 @@
         "battery",
         "custom/weather",
         "custom/resources",
+        "group/background-apps",
         "custom/clock"
     ],
     "ext/workspaces": {
@@ -34,6 +35,27 @@
         "min-length": 5,
         "max-length": 25,
         "on-click": "korganizer"
+    },
+    "tray": {
+        "icon-size": 18,
+        "spacing": 8,
+        "show-passive-items": true
+    },
+    "group/background-apps": {
+        "orientation": "horizontal",
+        "drawer": {
+            "transition-duration": 250,
+            "transition-left-to-right": false,
+            "children-class": "tray-apps"
+        },
+        "modules": [
+            "custom/tray-toggle",
+            "tray"
+        ]
+    },
+    "custom/tray-toggle": {
+        "format": "•••",
+        "tooltip": "Background apps"
     },
     "custom/weather": {
         "exec": "~/.config/waybar/scripts/weather.sh",

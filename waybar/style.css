@@ -27,7 +27,9 @@ window#waybar {
 #network,
 #pulseaudio,
 #custom-microphone,
-#custom-bluetooth {
+#custom-bluetooth,
+#custom-tray-toggle,
+#tray {
     font-weight: bold; /* Твой bold сохранен */
     padding: 4px 14px;
     border-radius: 15px;
@@ -37,6 +39,19 @@ window#waybar {
     margin: 10px 10px 10px 0;
     font-size: 15px;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+#tray:hover {
+    background-color: alpha(@module_fg, 0.18);
+}
+
+#custom-tray-toggle:hover {
+    background-color: alpha(@module_fg, 0.18);
+}
+
+#tray > .needs-attention {
+    background-color: alpha(@color3, 0.65);
+    border-radius: 8px;
 }
 
 #workspaces {
